@@ -247,6 +247,7 @@ static inline void fb_f1c100s_init(struct fb_f1c100s_pdata_t * pdat)
 {
 	fb_f1c100s_cfg_gpios(F1C100S_GPIOD0, 22, 0x2, GPIO_PULL_NONE, GPIO_DRV_STRONG);
 
+	video_hw_init();
 	f1c100s_debe_set_address(pdat, pdat->vram[pdat->index]);
 
 /*	f1c100s_tcon_disable(pdat);
