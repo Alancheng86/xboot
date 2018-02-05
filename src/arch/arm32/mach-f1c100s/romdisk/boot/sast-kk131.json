@@ -337,8 +337,7 @@
 	},
 
 	"ledtrig-heartbeat@0": {
-		"led-name": "led-gpio.0",
-		"period-ms": 1260
+		
 	},
 
 	"led-pwm-bl@0": {
