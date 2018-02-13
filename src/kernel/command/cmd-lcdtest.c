@@ -10,7 +10,7 @@
 #include <command/command.h>
 #include <gpio/gpio.h>
 
-
+extern void FB_RECONFIG(void);
 static void usage(void)
 {
 	printf("usage:\r\n");
@@ -214,6 +214,7 @@ static int do_color(int argc, char ** argv)
 	double t;
 	int lcdtest_num=0;
 	char AUTO_RUN=0;		/////0X00手动，
+	int PIC_NUM_MAX=10;		/////
 
 	int GPIO_SET_TEST=0;
 	
@@ -236,7 +237,7 @@ static int do_color(int argc, char ** argv)
 				if(e.e.key_up.key == KEY_ENTER)
 					{printf("    KEY_ENTER   \r\n");
 						AUTO_RUN= (~AUTO_RUN);}
-				if(e.e.key_up.key == KEY_VOLUME_UP)
+				if((e.e.key_up.key == KEY_VOLUME_UP)||(e.e.key_up.key == KEY_a))
 					{
 						printf("    KEY_VOLUME_UP   \r\n");
 						c = c + 1.0;
@@ -247,7 +248,7 @@ static int do_color(int argc, char ** argv)
 						system("write 1 /sys/device/led/led-gpio.0/brightness");
 						printf(" system_write_1 \r\n");
 					}
-				if(e.e.key_up.key == KEY_VOLUME_DOWN)
+				if((e.e.key_up.key == KEY_VOLUME_DOWN)||(e.e.key_up.key == KEY_s))
 					{
 						printf("    KEY_VOLUME_DOWN   \r\n");
 						c = c - 1.0;
@@ -257,7 +258,30 @@ static int do_color(int argc, char ** argv)
 
 						system("write 0 /sys/device/led/led-gpio.0/brightness");
 						printf(" system_write_0 \r\n");
+
+
 					}
+				if(e.e.key_up.key == KEY_q)
+				{
+										//printf("    KEY_VOLUME_DOWN   \r\n");
+										//c = c - 1.0;
+										//lcdtest_num--;
+										//gpio_set_value(GPIO_SET_TEST,0);
+										//printf("    c=%d ,lcdtest_num=%d ; \r\n",c,lcdtest_num);
+
+										//system("write 0 /sys/device/led/led-gpio.0/brightness");
+										//printf(" system_write_0 \r\n");
+
+					printf(" system_reboot \r\n");
+					system("reboot");
+				}
+				if(e.e.key_up.key == KEY_z)
+				{
+					FB_RECONFIG();//fb_pl111_driver_exit();
+					//system("write aa.json /boot/ab.json");
+					printf(" FB_RECONFIG test  \r\n");
+					break;
+				}
 			}
 		}
 		if(ctrlc())
@@ -455,7 +479,7 @@ static int do_color(int argc, char ** argv)
 			lcdtest_num++;mdelay(150);
 		}
 		
-		if(lcdtest_num>=10){lcdtest_num=lcdtest_num-10;}
+		if(lcdtest_num>=PIC_NUM_MAX){lcdtest_num=lcdtest_num-PIC_NUM_MAX;}
 	//	printf("	c=%d ,lcdtest_num=%d ; \r\n",c,lcdtest_num);
 
 	//	mdelay(20);

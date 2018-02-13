@@ -199,8 +199,8 @@
 	},
 
 	"fb-pl111@0x10020000": {
-		"width": 640,
-		"height": 480,
+		"width": 800,
+		"height": 1280,
 		"physical-width": 216,
 		"physical-height": 135,
 		"bits-per-pixel": 32,

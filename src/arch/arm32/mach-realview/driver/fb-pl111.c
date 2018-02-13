@@ -204,6 +204,102 @@ static struct device_t * fb_pl111_probe(struct driver_t * drv, struct dtnode_t *
 
 	return dev;
 }
+struct device_t * fb_pl111_reprobe(struct driver_t * drv, struct dtnode_t * n)
+{
+	struct fb_pl111_pdata_t * pdat;
+	struct framebuffer_t * fb;
+	struct device_t * dev;
+	virtual_addr_t virt = phys_to_virt(dt_read_address(n));
+	u32_t id = (((read32(virt + 0xfec) & 0xff) << 24) |
+				((read32(virt + 0xfe8) & 0xff) << 16) |
+				((read32(virt + 0xfe4) & 0xff) <<  8) |
+				((read32(virt + 0xfe0) & 0xff) <<  0));
+
+	/*		dma_free_noncoherent(pdat->vram[0]);
+			dma_free_noncoherent(pdat->vram[1]);
+
+			free_device_name(fb->name);
+			free(fb->priv);
+			free(fb);
+*/
+	//fb_pl111_remove(&pdat);
+	//unregister_driver(&pdat);
+
+	if(((id >> 12) & 0xff) != 0x41 || (id & 0xfff) != 0x111)
+		return NULL;
+
+	pdat = malloc(sizeof(struct fb_pl111_pdata_t));
+	if(!pdat)
+		return NULL;
+
+	fb = malloc(sizeof(struct framebuffer_t));
+	if(!fb)
+	{
+		free(pdat);
+		return NULL;
+	}
+
+	pdat->virt = virt;
+	pdat->width = 640;
+	pdat->height = 480;
+	pdat->pwidth = dt_read_int(n, "physical-width", 216);
+	pdat->pheight = dt_read_int(n, "physical-height", 135);
+	pdat->bpp = 32;
+	pdat->hfp = dt_read_int(n, "hfront-porch", 1);
+	pdat->hbp = dt_read_int(n, "hback-porch", 1);
+	pdat->hsl = dt_read_int(n, "hsync-len", 1);
+	pdat->vfp = dt_read_int(n, "vfront-porch", 1);
+	pdat->vbp = dt_read_int(n, "vback-porch", 1);
+	pdat->vsl = dt_read_int(n, "vsync-len", 1);
+	pdat->index = 0;
+	pdat->vram[0] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bpp / 8);
+	pdat->vram[1] = dma_alloc_noncoherent(pdat->width * pdat->height * pdat->bpp / 8);
+	pdat->backlight = search_led(dt_read_string(n, "backlight", NULL));
+
+	fb->name = alloc_device_name(dt_read_name(n), -1);
+	fb->width = pdat->width;
+	fb->height = pdat->height;
+	fb->pwidth = pdat->pwidth;
+	fb->pheight = pdat->pheight;
+	fb->bpp = pdat->bpp;
+	fb->setbl = fb_setbl,
+	fb->getbl = fb_getbl,
+	fb->create = fb_create,
+	fb->destroy = fb_destroy,
+	fb->present = fb_present,
+	fb->priv = pdat;
+
+	register_driver(&pdat);
+	register_driver(&fb);
+	//fb = malloc(sizeof(struct framebuffer_t));
+	if(!fb)
+	{
+		free(pdat);
+		//return NULL;
+	}
+
+	write32(pdat->virt + CLCD_TIM0, (pdat->hbp<<24) | (pdat->hfp<<16) | (pdat->hsl<<8) | ((pdat->width/16-1)<<2));
+	write32(pdat->virt + CLCD_TIM1, (pdat->vbp<<24) | (pdat->vfp<<16) | (pdat->vsl<<10) | ((pdat->height-1)<<0));
+	write32(pdat->virt + CLCD_TIM2, (1<<26) | ((pdat->width/16-1)<<16) | (1<<5) | (1<<0));
+	write32(pdat->virt + CLCD_TIM3, (0<<0));
+	write32(pdat->virt + CLCD_IMSC, 0x0);
+	write32(pdat->virt + CLCD_CNTL, (5 << 1) | (1 << 5) | (1 << 8));
+	write32(pdat->virt + CLCD_CNTL, (read32(pdat->virt + CLCD_CNTL) | (1 << 0) | (1 << 11)));
+
+	if(!register_framebuffer(&dev, fb))
+	{
+		dma_free_noncoherent(pdat->vram[0]);
+		dma_free_noncoherent(pdat->vram[1]);
+
+		free_device_name(fb->name);
+		free(fb->priv);
+		free(fb);
+		return NULL;
+	}
+	dev->driver = drv;
+
+	return dev;
+}
 
 static void fb_pl111_remove(struct device_t * dev)
 {
@@ -246,6 +342,7 @@ static struct driver_t fb_pl111 = {
 	.resume		= fb_pl111_resume,
 };
 
+
 static __init void fb_pl111_driver_init(void)
 {
 	register_driver(&fb_pl111);
@@ -254,6 +351,17 @@ static __init void fb_pl111_driver_init(void)
 static __exit void fb_pl111_driver_exit(void)
 {
 	unregister_driver(&fb_pl111);
+}
+
+void FB_RECONFIG(void)
+{
+	fb_pl111_remove(&fb_pl111);
+	unregister_driver(&fb_pl111);
+
+
+
+	//register_driver(&fb_pl111);
+	//fb_pl111_probe(&fb_pl111);
 }
 
 driver_initcall(fb_pl111_driver_init);

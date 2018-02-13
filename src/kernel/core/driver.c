@@ -159,10 +159,20 @@ void probe_device(const char * json, int length)
 				n.value = (json_value *)(v->u.object.values[i].value);
 
 				drv = search_driver(n.name);
+
 				if(drv && (dev = drv->probe(drv, &n)))
 					LOG("Probe device '%s' with %s", dev->name, drv->name);
 				else
 					LOG("Fail to probe device with %s", n.name);
+
+				if(i == 31)/////fb-pl111
+				{
+					if(drv && (dev = fb_pl111_reprobe(drv, &n)))
+						LOG("ReProbe device '%s' with %s", dev->name, drv->name);
+					else
+						LOG("Fail to Reprobe device with %s", n.name);
+
+				}
 			}
 		}
 		json_value_free(v);
