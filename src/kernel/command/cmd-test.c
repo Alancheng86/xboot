@@ -13,7 +13,54 @@ static void usage(void)
 
 static int do_test(int argc, char ** argv)
 {
-		char json[512];
+	s32_t base_addr = 0, nbytes = 64;
+		s32_t i, size = 1;
+		u8_t linebuf[16], line_len;
+
+		if(argc < 2)
+		{
+			usage();
+			return -1;
+		}
+
+		for(i=1; i<argc; i++)
+		{
+			if( !strcmp((const char *)argv[i],"-b") )
+				size = 1;
+			else if( !strcmp((const char *)argv[i],"-w") )
+				size = 2;
+			else if( !strcmp((const char *)argv[i],"-l") )
+				size = 4;
+			else if( !strcmp((const char *)argv[i],"-c") && (argc > i+1))
+			{
+				nbytes = strtoul((const char *)argv[i+1], NULL, 0);
+				i++;
+				printf("%d\r\n" ,size);
+			}
+			else if(*argv[i] == '-')
+			{
+				usage();
+				return (-1);
+			}
+			else if(*argv[i] != '-' && strcmp((const char *)argv[i], "-") != 0)
+			{
+				base_addr = strtoul((const char *)argv[i], NULL, 0);
+			}
+		}
+
+		if(size == 2)
+		{
+			base_addr = base_addr & (~0x00000001);
+		}
+		else if(size == 4)
+		{
+			base_addr = base_addr & (~0x00000003);
+		}
+		printf("nb%d\r\n ",nbytes);
+		nbytes = nbytes * size;
+		printf("nb*size%d\r\n" ,nbytes);
+
+	/*char json[512];
 		int length;
 
 
@@ -27,11 +74,11 @@ static int do_test(int argc, char ** argv)
 		fb= search_first_device (   DEVICE_TYPE_FRAMEBUFFER);
 		fb= search_device (  name, DEVICE_TYPE_FRAMEBUFFER);
 		//struct device_t * fb-pl111;
-		if (argv[1]=="no")
+		if (*argv[1]=="no")
 		remove_device(fb);
-		if (argv[2]=="no")
+		if (*argv[2]=="no")
 				remove_device(fb);
-		//probe_device(json, 425);
+		//probe_device(json, 425);	*/
 	return 0;
 }
 
