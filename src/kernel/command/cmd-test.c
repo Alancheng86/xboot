@@ -166,6 +166,14 @@ static int do_test(int argc, char ** argv)
 			cJSON_AddNumberToObject(js_list,"pclkactive",atoi((const char *)argv[i])); //添加 pclkactive
 			
 		}
+		else if (!strcmp((const char *)argv[i], "remove"))
+		{
+			struct device_t * fb;
+			//const char * name="fb-pl111.0";
+			//fb= search_device (  name, DEVICE_TYPE_FRAMEBUFFER);
+			fb= search_first_device (   DEVICE_TYPE_FRAMEBUFFER);
+			remove_device(fb);		//// 模拟器貌似会挂
+		}
 		else 
 		{
 			usage(argv[i]);		
@@ -195,7 +203,7 @@ static int do_test(int argc, char ** argv)
 	//fb= search_device (  name, DEVICE_TYPE_FRAMEBUFFER);
 	fb= search_first_device (   DEVICE_TYPE_FRAMEBUFFER);
 	//remove_device(fb);		//// 模拟器貌似会挂
-	probe_device(out, length); //
+	probe_device(json, length); //
 	return 0;
 }
 
