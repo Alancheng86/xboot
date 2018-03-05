@@ -98,12 +98,13 @@ static int do_test(int argc, char ** argv)
 	
 	//json压缩转义可通过https://www.sojson.com网站完成，压缩转义前请先校验
 	//realview:
-	//out="{\"fb-pl111@0x10020000\":{\"width\":640,\"height\":480,\"physical-width\":216,\"physical-height\":135,\"bits-per-pixel\":32,\"clock-frequency\":50000000,\"hfront-porch\":1,\"hback-porch\":1,\"hsync-len\":1,\"vfront-porch\":1,\"vback-porch\":1,\"vsync-len\":1,\"hsync-active\":false,\"vsync-active\":false,\"de-active\":false,\"pixelclk-active\":false}}";
-	out="{\"fb-f1c100s@0\":{\"clock-name-defe\":\"link-defe\",\"clock-name-debe\":\"link-debe\",\"clock-name-tcon\":\"link-tcon\",\"reset-defe\":46,\"reset-debe\":44,\"reset-tcon\":36,\"width\":800,\"height\":480,\"physical-width\":216,\"physical-height\":135,\"bits-per-pixel\":18,\"bytes-per-pixel\":4,\"clock-frequency\":33000000,\"hfront-porch\":40,\"hback-porch\":87,\"hsync-len\":1,\"vfront-porch\":13,\"vback-porch\":31,\"vsync-len\":1,\"hsync-active\":false,\"vsync-active\":false,\"den-active\":false,\"clk-active\":false,\"backlight\":\"led-pwm-bl.0\"}}";
+	out="{\"fb-pl111@0x10020000\":{\"width\":640,\"height\":480,\"physical-width\":216,\"physical-height\":135,\"bits-per-pixel\":32,\"clock-frequency\":50000000,\"hfront-porch\":1,\"hback-porch\":1,\"hsync-len\":1,\"vfront-porch\":1,\"vback-porch\":1,\"vsync-len\":1,\"hsync-active\":false,\"vsync-active\":false,\"de-active\":false,\"pixelclk-active\":false}}";
+	//out="{\"fb-f1c100s@0\":{\"clock-name-defe\":\"link-defe\",\"clock-name-debe\":\"link-debe\",\"clock-name-tcon\":\"link-tcon\",\"reset-defe\":46,\"reset-debe\":44,\"reset-tcon\":36,\"width\":800,\"height\":480,\"physical-width\":216,\"physical-height\":135,\"bits-per-pixel\":18,\"bytes-per-pixel\":4,\"clock-frequency\":33000000,\"hfront-porch\":40,\"hback-porch\":87,\"hsync-len\":1,\"vfront-porch\":13,\"vback-porch\":31,\"vsync-len\":1,\"hsync-active\":false,\"vsync-active\":false,\"den-active\":false,\"clk-active\":false,\"backlight\":\"led-pwm-bl.0\"}}";
 	//printf(" %s \n",out);
 
 	fbjson = cJSON_Parse(out); //解析成json形式	
-	js_list= cJSON_GetObjectItem(fbjson, "fb-f1c100s@0");   // 此处注意节点名称
+	js_list= cJSON_GetObjectItem(fbjson, "fb-pl111@0x10020000");   // 此处注意节点名称
+	//js_list= cJSON_GetObjectItem(fbjson, "fb-f1c100s@0");   // 此处注意节点名称
 	//cJSON_DeleteItemFromObject(js_list,"height"); //删除 height
 	//cJSON_AddStringToObject(js_list,"height","480"); //添加 height
 	//------------------------------------------
@@ -197,7 +198,7 @@ static int do_test(int argc, char ** argv)
 		else 
 		{
 			usage(argv[i]);		
-		    cJSON_Delete(fbjson);free (out);
+		    cJSON_Delete(fbjson);//free (out); 
 			return 0; //return 0 ? or -1 ?
 		}
 
@@ -216,7 +217,7 @@ static int do_test(int argc, char ** argv)
 	char json[600];
 	int length;
 	memset(json, 0, sizeof(json));
-	length = sprintf(json, out);   	free(out);
+	length = sprintf(json, out);   	//free(out);
 	struct framebuffer_t * fbb;	//供开启背光用
 
 	//struct device_t * fb; //供remove device用
