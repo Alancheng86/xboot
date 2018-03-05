@@ -51,8 +51,21 @@ static int do_test(int argc, char ** argv)
 	char *out; int i;
 	if((argc-1)%2)  //判断参数数量是否为2的整数倍
 	{
-		usage("参数数量不匹配");
-		return -1;
+		if (!strcmp((const char *)argv[1], "remove"))
+		{
+			struct device_t * fb;
+			//const char * name="fb-pl111.0";
+			//fb= search_device (  name, DEVICE_TYPE_FRAMEBUFFER);
+			fb= search_first_device (   DEVICE_TYPE_FRAMEBUFFER);
+			remove_device(fb);		//// 模拟器貌似会挂
+			return 0;
+		}
+		else
+		{
+			usage("参数数量不匹配");
+			return -1; 
+		}
+		
 	}
 
 	for(i=1; i<argc; i++)   //判断传入的参数是否符合：（字母参数）+（数字参数的格式）
@@ -111,60 +124,62 @@ static int do_test(int argc, char ** argv)
 		}
 		else if (!strcmp((const char *)argv[i], "vfp"))
 		{
-			cJSON_DeleteItemFromObject(js_list,"vfp"); //删除 
+			cJSON_DeleteItemFromObject(js_list,"vfront-porch"); //删除 
 			i++;
-			cJSON_AddNumberToObject(js_list,"vfp",atoi((const char *)argv[i])); //添加 
+			cJSON_AddNumberToObject(js_list,"vfront-porch",atoi((const char *)argv[i])); //添加 
 			
 		}
 		else if (!strcmp((const char *)argv[i], "vpw"))
 		{
-			cJSON_DeleteItemFromObject(js_list,"vpw"); //删除 vpw
+			cJSON_DeleteItemFromObject(js_list,"vsync-len"); //删除 vpw
 			i++;
-			cJSON_AddNumberToObject(js_list,"vpw",atoi((const char *)argv[i])); //添加 vpw
+			cJSON_AddNumberToObject(js_list,"vsync-len",atoi((const char *)argv[i])); //添加 vpw
 			
 		}
 		else if (!strcmp((const char *)argv[i], "vbp"))
 		{
-			cJSON_DeleteItemFromObject(js_list,"vbp"); //删除 vbp
+			cJSON_DeleteItemFromObject(js_list,"vback-porch"); //删除 vbp
 			i++;
-			cJSON_AddNumberToObject(js_list,"vbp",atoi((const char *)argv[i])); //添加 vpb
+			cJSON_AddNumberToObject(js_list,"vback-porch",atoi((const char *)argv[i])); //添加 vpb
 			
 		}
 				
 		else if (!strcmp((const char *)argv[i], "hfp"))
 		{
-			cJSON_DeleteItemFromObject(js_list,"hfp"); //删除 
+			cJSON_DeleteItemFromObject(js_list,"hfront-porch"); //删除 
 			i++;
-			cJSON_AddNumberToObject(js_list,"hfp",atoi((const char *)argv[i])); //添加 
+			cJSON_AddNumberToObject(js_list,"hfront-porch",atoi((const char *)argv[i])); //添加 
 			
 		}
 		else if (!strcmp((const char *)argv[i], "hpw"))
 		{
-			cJSON_DeleteItemFromObject(js_list,"hpw"); //删除hpw
+			cJSON_DeleteItemFromObject(js_list,"hsync-len"); //删除hpw
 			i++;
-			cJSON_AddNumberToObject(js_list,"hpw",atoi((const char *)argv[i])); //添加 hpw
+			cJSON_AddNumberToObject(js_list,"hsync-len",atoi((const char *)argv[i])); //添加 hpw
 			
 		}
 		else if (!strcmp((const char *)argv[i], "hbp"))
 		{
-			cJSON_DeleteItemFromObject(js_list,"hbp"); //删除 hbp
+			cJSON_DeleteItemFromObject(js_list,"hback-porch"); //删除 hbp
 			i++;
-			cJSON_AddNumberToObject(js_list,"hbp",atoi((const char *)argv[i])); //添加 hbp
+			cJSON_AddNumberToObject(js_list,"hback-porch",atoi((const char *)argv[i])); //添加 hbp
 			
 		}
 		else if (!strcmp((const char *)argv[i], "pclk"))
 		{
-			cJSON_DeleteItemFromObject(js_list,"pclk"); //删除 pclk
+			cJSON_DeleteItemFromObject(js_list,"clock-frequency"); //删除 pclk
 			i++;
-			cJSON_AddNumberToObject(js_list,"pclk",atoi((const char *)argv[i])); //添加 pclk
+			cJSON_AddNumberToObject(js_list,"clock-frequency",atoi((const char *)argv[i])); //添加 pclk
 			
 		}
 		else if (!strcmp((const char *)argv[i], "pclkactive"))
 		{
-			cJSON_DeleteItemFromObject(js_list,"pclkactive"); //删除 pclkactive
+			cJSON_DeleteItemFromObject(js_list,"clk-active"); //删除 pclkactive
 			i++;
-			cJSON_AddNumberToObject(js_list,"pclkactive",atoi((const char *)argv[i])); //添加 pclkactive
-			
+			if (atoi((const char *)argv[i]))
+				cJSON_AddTrueToObject(js_list,"clk-active"); //添加 pclkactive
+			else
+				cJSON_AddFalseToObject(js_list,"clk-active"); //添加 pclkactive
 		}
 		else if (!strcmp((const char *)argv[i], "remove"))
 		{
@@ -173,6 +188,7 @@ static int do_test(int argc, char ** argv)
 			//fb= search_device (  name, DEVICE_TYPE_FRAMEBUFFER);
 			fb= search_first_device (   DEVICE_TYPE_FRAMEBUFFER);
 			remove_device(fb);		//// 模拟器貌似会挂
+			return 0;
 		}
 		else 
 		{
@@ -184,11 +200,11 @@ static int do_test(int argc, char ** argv)
     }
 //-----------------------------------------------------------------
     {        
+		out = cJSON_Print(fbjson);   //json转换漂亮格式字符串(带\n \t)
+       		printf(" %s \n",out);
 		out = cJSON_PrintUnformatted(fbjson);  //json 转换回原字符串
        		// printf(" %s \n",out); 
-		//TODO
-		//out = cJSON_Print(fbjson);   //json转换漂亮格式字符串(带\n \t)
-       		//printf(" %s \n",out);
+		
     }  
     cJSON_Delete(fbjson);  //释放内存    
       
@@ -197,7 +213,7 @@ static int do_test(int argc, char ** argv)
 	int length;
 	memset(json, 0, sizeof(json));
 	length = sprintf(json, out);   	free(out);
-	//length = sprintf(json, "{\"fb-pl111@0x10020000\":{\"height\":480,\"physical-width\":216,\"physical-height\":135,\"bits-per-pixel\":32,\"clock-frequency\":50000000,\"hfront-porch\":1,\"hback-porch\":1,\"hsync-len\":1,\"vfront-porch\":1,\"vback-porch\":1,\"vsync-len\":1,\"hsync-active\":false,\"vsync-active\":false,\"de-active\":false,\"pixelclk-active\":false,\"width\":240}}");   	//free(out);
+	
 	struct device_t * fb;
 	//const char * name="fb-pl111.0";
 	//fb= search_device (  name, DEVICE_TYPE_FRAMEBUFFER);
