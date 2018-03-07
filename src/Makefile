@@ -7,12 +7,12 @@
 # You must pass CROSS_COMPILE and PLATFORM variable.
 #
 #QEMU:CROSS_COMPILE=/path/to/arm-linux-gnueabihf- PLATFORM=arm32-realview
-CROSS_COMPILE	?=arm-linux-gnueabihf-
-PLATFORM		?=arm32-realview
+#CROSS_COMPILE	?=arm-linux-gnueabihf-
+#PLATFORM		?=arm32-realview
 
 #F1C100S:	
-#CROSS_COMPILE	?=arm-eabi-
-#PLATFORM		?=arm32-f1c100s
+CROSS_COMPILE	?=arm-eabi-
+PLATFORM		?=arm32-f1c100s
 
 #
 # Get platform information about ARCH and MACH from PLATFORM variable.
