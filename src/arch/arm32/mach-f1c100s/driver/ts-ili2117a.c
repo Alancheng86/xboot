@@ -29,10 +29,10 @@
 #include <input/input.h>
 
 
-u32 SLAVE_I2C_ID_DBBUS = (0xC4>>1); //0x62 // for MSG28xx/MSG58xxA/ILI2117A/ILI2118A
-//u32 SLAVE_I2C_ID_DBBUS = (0xB2>>1); //0x59 // for MSG22xx
-u32 SLAVE_I2C_ID_DWI2C = (0x4C>>1); //0x26 
-//u32 SLAVE_I2C_ID_DWI2C = (0x82>>1); //0x41 // for ILI21xx
+u32_t SLAVE_I2C_ID_DBBUS = (0xC4>>1); //0x62 // for MSG28xx/MSG58xxA/ILI2117A/ILI2118A
+//u32_t SLAVE_I2C_ID_DBBUS = (0xB2>>1); //0x59 // for MSG22xx
+u32_t SLAVE_I2C_ID_DWI2C = (0x4C>>1); //0x26 
+//u32_t SLAVE_I2C_ID_DWI2C = (0x82>>1); //0x41 // for ILI21xx
 
 u16_t FIRMWARE_MODE_UNKNOWN_MODE = 0xFFFF;
 u16_t FIRMWARE_MODE_DEMO_MODE = 0xFFFF;
@@ -42,6 +42,18 @@ u16_t FIRMWARE_MODE_RAW_DATA_MODE = 0xFFFF;
 u16_t DEMO_MODE_PACKET_LENGTH = 0; // If project use MSG28xx, set MUTUAL_DEMO_MODE_PACKET_LENGTH as default. If project use MSG22xx, set SELF_DEMO_MODE_PACKET_LENGTH as default. 
 u16_t DEBUG_MODE_PACKET_LENGTH = 0; // If project use MSG28xx, set MUTUAL_DEBUG_MODE_PACKET_LENGTH as default. If project use MSG22xx, set SELF_DEBUG_MODE_PACKET_LENGTH as default. 
 u16_t MAX_TOUCH_NUM = 0; // If project use MSG28xx, set MUTUAL_MAX_TOUCH_NUM as default. If project use MSG22xx, set SELF_MAX_TOUCH_NUM as default. 
+
+// Chip Id
+#define CHIP_TYPE_MSG21XX   (0x01) // EX. MSG2133
+#define CHIP_TYPE_MSG21XXA  (0x02) // EX. MSG2133A/MSG2138A(Besides, use version to distinguish MSG2133A/MSG2138A, you may refer to _DrvFwCtrlUpdateFirmwareCash()) 
+#define CHIP_TYPE_MSG26XXM  (0x03) // EX. MSG2633M
+#define CHIP_TYPE_MSG22XX   (0x7A) // EX. MSG2238/MSG2256
+#define CHIP_TYPE_MSG28XX   (0x85) // EX. MSG2833/MSG2835/MSG2836/MSG2840/MSG2856/MSG5846
+#define CHIP_TYPE_MSG58XXA  (0xBF) // EX. MSG5846A
+#define CHIP_TYPE_ILI2117A  (0x2117) // EX. ILI2117A
+#define CHIP_TYPE_ILI2118A  (0x2118) // EX. ILI2118A
+#define CHIP_TYPE_ILI2121   (0x2121) // EX. ILI2121
+#define CHIP_TYPE_ILI2120   (0x2120) // (0) // EX. ILI2120
 
 
 struct ts_ili2117a_pdata_t {
@@ -70,20 +82,22 @@ static const struct ili2117a_firmware_t firmware[] = {
 
 static bool_t ili2117a_read(struct i2c_device_t * dev, u8_t * buf, int len)
 {
-	struct i2c_msg_t msgs;
-/*
+	struct i2c_msg_t msgs[2];
+
     msgs[0].addr = dev->addr;
-    msgs[0].flags = 0;
-    msgs[0].len = 1;
-    msgs[0].buf = &reg;
-*/
-    msgs.addr = dev->addr;
-    msgs.flags = I2C_M_RD;
-    msgs.len = len;
-    msgs.buf = buf;
+    msgs[0].flags = I2C_M_RD;
+    msgs[0].len = len;
+    msgs[0].buf = buf;
+
+    msgs[1].addr = dev->addr;
+    msgs[1].flags = I2C_M_RD;
+    msgs[1].len = len;
+    msgs[1].buf = buf;
 
     if(i2c_transfer(dev->i2c, msgs, 2) != 2)
-    	return FALSE;
+	{
+		return FALSE;
+	}
     return TRUE;
 }
 
@@ -130,7 +144,7 @@ static u16_t RegGet16BitValue(u16_t nAddr)
     return (szRxData[1] << 8 | szRxData[0]);
 }
 
-static u32_t DbBusEnterSerialDebugMode(struct i2c_device_t * dev)
+static u32_t DbBusEnterSerialDebugMode(void)
 {
     u32_t rc = 0;
     u8_t buf[5];
@@ -142,7 +156,7 @@ static u32_t DbBusEnterSerialDebugMode(struct i2c_device_t * dev)
     buf[3] = 0x44;
     buf[4] = 0x42;
 
-    rc = ili2117a_write(dev, buf, 5);
+    rc = ili2117a_write(SLAVE_I2C_ID_DBBUS, buf, 5);
     
     return rc;
 }
@@ -400,13 +414,13 @@ static struct device_t * ts_ili2117a_probe(struct driver_t * drv, struct dtnode_
 		i2c_device_free(i2cdev);
 		return NULL;
 	}
-	ili2117a_clear(i2cdev);
+/*	ili2117a_clear(i2cdev);
 	ili2117a_reset(i2cdev);
 	ili2117a_load_firmware(i2cdev, firmware);
 	ili2117a_startup(i2cdev);
 	ili2117a_reset(i2cdev);
 	ili2117a_startup(i2cdev);
-
+*/
 	pdat = malloc(sizeof(struct ts_ili2117a_pdata_t));
 	if(!pdat)
 	{
