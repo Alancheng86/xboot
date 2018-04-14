@@ -53,7 +53,7 @@ static void servo_pwm_set_angle(struct servo_pwm_pdata_t * pdat, int angle)
 static void servo_pwm_enable(struct servo_t * m)
 {
 	struct servo_pwm_pdata_t * pdat = (struct servo_pwm_pdata_t *)m->priv;
-	servo_pwm_set_angle(pdat, pdat->angle);
+	pwm_enable(pdat->pwm);
 }
 
 static void servo_pwm_disable(struct servo_t * m)
@@ -107,7 +107,6 @@ static struct device_t * servo_pwm_probe(struct driver_t * drv, struct dtnode_t 
 	m->disable = servo_pwm_disable;
 	m->set = servo_pwm_set;
 	m->priv = pdat;
-
 	servo_pwm_set(m, dt_read_int(n, "default-angle", 0));
 
 	if(!register_servo(&dev, m))
