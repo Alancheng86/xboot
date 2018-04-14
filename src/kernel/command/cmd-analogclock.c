@@ -201,9 +201,9 @@ static int do_analogclock(int argc, char ** argv)
 		cairo_paint(cr);
 		cairo_restore(cr);
 
-		//cairo_show_title(cr, width, 32, face, "模拟时钟");
+		cairo_show_title(cr, width, 32, face, "模拟时钟");
 		//cairo_show_title(cr, width, 30, face, "时钟");
-		cairo_show_title(cr, width, 32, face, "analogclock时钟");
+		//cairo_show_title(cr, width, 32, face, "analogclock时钟");
 		cr = display_present(display);
 		mdelay(20);
 	}

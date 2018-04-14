@@ -181,7 +181,7 @@ static int do_color(int argc, char ** argv)
 		cairo_restore(cr);
 
 		cairo_show_title(cr, width, 32, face, "颜色测试");
-		cairo_show_title(cr, width, 32, face, "color test");
+		//cairo_show_title(cr, width, 32, face, "color test");
 		cr = display_present(display);
 		mdelay(20);
 	}
