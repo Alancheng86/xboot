@@ -380,7 +380,7 @@
 
 	"console-uart@0": {
 		"uart-bus": "uart-16550.2"
-	}	
+	},	
 	"ts-ili2117a@0": {
 		"i2c-bus": "i2c-f1c100s.0",
 		"interrupt-gpio": 131,
