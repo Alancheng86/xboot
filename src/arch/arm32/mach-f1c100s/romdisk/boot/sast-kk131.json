@@ -268,7 +268,18 @@
 		"stop-bits": 1
 	},
 
-
+	"uart-16550@0x01c25800": {
+		"clock-name": "link-uart2",
+		"reset": 86,
+		"txd-gpio": 135,
+		"txd-gpio-config": 3,
+		"rxd-gpio": 136,
+		"rxd-gpio-config": 3,
+		"baud-rates": 115200,
+		"data-bits": 8,
+		"parity-bits": 0,
+		"stop-bits": 1
+	},
 
 	"spi-f1c100s@0x01c05000": {
 		"clock-name": "link-spi0",
@@ -295,20 +306,7 @@
 		"cs-gpio": 135,
 		"cs-gpio-config": 4
 	},
-	
-	"uart-16550@0x01c25800": {
-		"clock-name": "link-uart2",
-		"reset": 86,
-		"txd-gpio": 135,
-		"txd-gpio-config": 3,
-		"rxd-gpio": 136,
-		"rxd-gpio-config": 3,
-		"baud-rates": 115200,
-		"data-bits": 8,
-		"parity-bits": 0,
-		"stop-bits": 1
-	},
-	
+
 	"spi-flash@0": {
 		"spi-bus": "spi-f1c100s.0",
 		"chip-select": 0,
@@ -372,18 +370,17 @@
 		"vfront-porch": 13,
 		"vback-porch": 31,
 		"vsync-len": 1,
-		"hsync-active": true,
-		"vsync-active": true,
-		"den-active": true,
-		"clk-active": false,
-		"BR-swap":true,
+		"hsync-active": false,
+		"vsync-active": false,
+		"den-active": false,
+		"clk-active": false, 
+		"rgb-swap": true,
 		"backlight": "led-pwm-bl.0"
 	},
 
 	"console-uart@0": {
 		"uart-bus": "uart-16550.2"
-	},
-	
+	}	
 	"ts-ili2117a@0": {
 		"i2c-bus": "i2c-f1c100s.0",
 		"interrupt-gpio": 131,

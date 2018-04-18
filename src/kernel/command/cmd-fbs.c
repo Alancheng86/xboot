@@ -173,6 +173,44 @@ static int do_fbs(int argc, char ** argv)
 			else
 				cJSON_AddFalseToObject(js_list,"clk-active"); //添加 pclkactive
 		}
+		else if (!strcmp((const char *)argv[i], "hsactive"))
+		{
+			cJSON_DeleteItemFromObject(js_list,"hsync-active"); //删除 hsync-active
+			i++;
+			if (atoi((const char *)argv[i]))
+				cJSON_AddTrueToObject(js_list,"hsync-active"); //添加 hsync-active
+			else
+				cJSON_AddFalseToObject(js_list,"hsync-active"); //添加hsync-active
+		}
+		else if (!strcmp((const char *)argv[i], "vsactive"))
+		{
+			cJSON_DeleteItemFromObject(js_list,"vsync-active"); //删除 vsync-active
+			i++;
+			if (atoi((const char *)argv[i]))
+				cJSON_AddTrueToObject(js_list,"vsync-active"); //添加vsync-active
+			else
+				cJSON_AddFalseToObject(js_list,"vsync-active"); //添加vsync-active
+		}
+		else if (!strcmp((const char *)argv[i], "denactive"))
+		{
+			cJSON_DeleteItemFromObject(js_list,"den-active"); //删除 den-active
+			i++;
+			if (atoi((const char *)argv[i]))
+				cJSON_AddTrueToObject(js_list,"den-active"); //添加 den-active
+			else
+				cJSON_AddFalseToObject(js_list,"den-active"); //添加 den-active
+		}
+
+		else if (!strcmp((const char *)argv[i], "rgbswap"))
+		{
+			cJSON_DeleteItemFromObject(js_list,"rgb-swap"); //删除 rgb-swap
+			i++;
+			if (atoi((const char *)argv[i]))
+				cJSON_AddTrueToObject(js_list,"rgb-swap"); //添加 rgb-swap
+			else
+				cJSON_AddFalseToObject(js_list,"rgb-swap"); //添加 rgb-swap
+		}
+
 		else if (!strcmp((const char *)argv[i], "remove"))
 		{
 			struct device_t * fb;
