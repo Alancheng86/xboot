@@ -193,7 +193,7 @@ static int lcd_color(int argc, char ** argv)
 	return 0;
 }
 
-static int do_color(int argc, char ** argv)
+static int do_lcdtest(int argc, char ** argv)
 {
 	struct event_t e;
 	struct display_t * display = display_alloc(NULL);
@@ -201,29 +201,29 @@ static int do_color(int argc, char ** argv)
 	cairo_t * cr = display_present(display);
 	int width = display_width(display);
 	int height = display_height(display) - 32;
-	cairo_surface_t * blue_bar = cairo_image_surface_create_from_png("/framework/assets/images/color/blue-bar.png");
-	cairo_surface_t * blue_dot = cairo_image_surface_create_from_png("/framework/assets/images/color/blue-dot.png");
+	cairo_surface_t * picc1 = cairo_image_surface_create_from_png("/framework/assets/images/picc1.png");
+	/*cairo_surface_t * blue_dot = cairo_image_surface_create_from_png("/framework/assets/images/color/blue-dot.png");
 	cairo_surface_t * green_bar = cairo_image_surface_create_from_png("/framework/assets/images/color/green-bar.png");
 	cairo_surface_t * green_dot = cairo_image_surface_create_from_png("/framework/assets/images/color/green-dot.png");
 	cairo_surface_t * red_bar = cairo_image_surface_create_from_png("/framework/assets/images/color/red-bar.png");
-	cairo_surface_t * red_dot = cairo_image_surface_create_from_png("/framework/assets/images/color/red-dot.png");
-	int cwidth = cairo_image_surface_get_width(blue_bar);
-	int cheight = cairo_image_surface_get_height(blue_bar);
+	cairo_surface_t * red_dot = cairo_image_surface_create_from_png("/framework/assets/images/color/red-dot.png");*/
+	int cwidth = cairo_image_surface_get_width(picc1);
+	int cheight = cairo_image_surface_get_height(picc1);
 	double r, g, b;
 	double c = 1;
 	double t;
 	int lcdtest_num=0;
-	char AUTO_RUN=0;		/////0X00手动，
+	char AUTO_RUN=1;		/////0X00手动，
 	int PIC_NUM_MAX=10;		/////
 
 	int GPIO_SET_TEST=0;
 	
-	gpio_set_cfg(GPIO_SET_TEST,0x01);
+/*	gpio_set_cfg(GPIO_SET_TEST,0x01);
 	gpio_set_pull(GPIO_SET_TEST,GPIO_PULL_NONE);
 	gpio_set_drv(GPIO_SET_TEST,GPIO_DRV_WEAKER);
 	gpio_set_direction(GPIO_SET_TEST,GPIO_DIRECTION_OUTPUT);
 	gpio_set_rate(GPIO_SET_TEST,GPIO_RATE_FAST);
-
+*/
 	while(1)
 	{
 		
@@ -288,7 +288,10 @@ static int do_color(int argc, char ** argv)
 			break;
 		
 		c = c + 1.0;			
-					
+		cairo_save(cr);
+		//cairo_set_source_rgb(cr, 0.2, 0.6, 0.8);
+		//cairo_paint(cr);
+		cairo_restore(cr);			
 		switch(lcdtest_num)
 			{
 					case 0:		///////Red
@@ -424,7 +427,19 @@ static int do_color(int argc, char ** argv)
 					cairo_stroke(cr);
 					cairo_restore(cr);
 					break;
-
+				
+					case 9:
+					cairo_save(cr);
+					cairo_set_source_surface(cr, picc1, (width - cwidth) / 2, 32 + (height - cheight) / 2);
+					cairo_paint(cr);
+					cairo_restore(cr);
+					
+					cairo_destroy(cr);
+					//cairo_xboot_surface_present(cs);
+					//cairo_surface_destroy(cs);
+			
+					break;
+					
 				default:
 			//		printf("default_info \r\n");
 					t = c / 10;
@@ -437,7 +452,7 @@ static int do_color(int argc, char ** argv)
 					cairo_paint(cr);
 					cairo_restore(cr);*/
 
-					cairo_save(cr);
+/*					cairo_save(cr);
 					cairo_set_source_surface(cr, red_bar, 91, 230);
 					cairo_paint(cr);
 					cairo_set_source_surface(cr, green_bar, 91, 260);
@@ -451,7 +466,7 @@ static int do_color(int argc, char ** argv)
 					cairo_set_source_surface(cr, blue_dot, 90 + b * 280, 282);
 					cairo_paint(cr);
 					cairo_restore(cr);
-
+*/
 					cairo_save(cr);
 					cairo_set_line_width(cr, 0);
 					cairo_rectangle(cr, 0, 0, width, display_height(display));
@@ -476,25 +491,22 @@ static int do_color(int argc, char ** argv)
 
 		if(AUTO_RUN!=0x00)
 		{
-			lcdtest_num++;mdelay(150);
+			lcdtest_num++;mdelay(1500);
 		}
 		
-		if(lcdtest_num>=PIC_NUM_MAX){lcdtest_num=lcdtest_num-PIC_NUM_MAX;}
-	//	printf("	c=%d ,lcdtest_num=%d ; \r\n",c,lcdtest_num);
-
-	//	mdelay(20);
-/*
-		c = c + 1.0;
-		
-		*/
+		if(lcdtest_num>=PIC_NUM_MAX)
+		{
+			lcdtest_num=lcdtest_num-PIC_NUM_MAX;
+		}
 	}
 
-	cairo_surface_destroy(blue_bar);
+/*	cairo_surface_destroy(blue_bar);
 	cairo_surface_destroy(blue_dot);
 	cairo_surface_destroy(green_bar);
 	cairo_surface_destroy(green_dot);
 	cairo_surface_destroy(red_bar);
-	cairo_surface_destroy(red_dot);
+	cairo_surface_destroy(red_dot);*/
+//	cairo_surface_destroy(picc1);
 	display_free(display);
 	return 0;
 }
@@ -616,7 +628,7 @@ static struct command_t cmd_color = {
 	.name	= "lcdtest",
 	.desc	= "show lcdtest diagram",
 	.usage	= usage,
-	.exec	= do_color,
+	.exec	= do_lcdtest,
 };
 
 static __init void color_cmd_init(void)

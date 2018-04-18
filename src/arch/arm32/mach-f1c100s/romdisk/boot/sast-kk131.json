@@ -372,10 +372,11 @@
 		"vfront-porch": 13,
 		"vback-porch": 31,
 		"vsync-len": 1,
-		"hsync-active": false,
-		"vsync-active": false,
-		"den-active": false,
+		"hsync-active": true,
+		"vsync-active": true,
+		"den-active": true,
 		"clk-active": false,
+		"BR-swap":true,
 		"backlight": "led-pwm-bl.0"
 	},
 

@@ -79,9 +79,9 @@ void sys_spi_flash_init(void)
 	val |= (1 << 20);
 	write32(addr, val);
 
-	/* Set spi clock rate control register, divided by 4 */
+	/* Set spi clock rate control register, divided by 2 */
 	addr = 0x01c05000;
-	write32(addr + SPI_CCR, 0x00001001);
+	write32(addr + SPI_CCR, 0x00001000);
 
 	/* Enable spi0 and do a soft reset */
 	addr = 0x01c05000;

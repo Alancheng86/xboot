@@ -67,6 +67,7 @@ struct fb_f1c100s_pdata_t
 		int v_sync_active;
 		int den_active;
 		int clk_active;
+		int BR_swap;
 	} timing;
 
 	struct led_t * backlight;
@@ -87,7 +88,9 @@ static inline void f1c100s_debe_set_mode(struct fb_f1c100s_pdata_t * pdat)
 	write32((virtual_addr_t)&debe->layer0_stride, ((pdat->width) << 5));
 	write32((virtual_addr_t)&debe->layer0_addr_low32b, (u32_t)(pdat->vram[pdat->index]) << 3);
 	write32((virtual_addr_t)&debe->layer0_addr_high4b, (u32_t)(pdat->vram[pdat->index]) >> 29);
-	write32((virtual_addr_t)&debe->layer0_attr1_ctrl, 0x09 << 8);
+	//////ADD BGR swap RGB
+	if(~(!pdat->timing.BR_swap)){val = 1<<2;}
+	write32((virtual_addr_t)&debe->layer0_attr1_ctrl, val | (0x09 << 8));
 
 	val = read32((virtual_addr_t)&debe->mode);
 	val |= (1 << 8);
@@ -179,10 +182,22 @@ static inline void f1c100s_tcon_set_mode(struct fb_f1c100s_pdata_t * pdat)
 	}
 
 	val = (1 << 28);
-	if(!pdat->timing.h_sync_active)
-		val |= (1 << 25);
-	if(!pdat->timing.h_sync_active)
+	if(!pdat->timing.v_sync_active)
+	{	
 		val |= (1 << 24);
+	}
+	if(!pdat->timing.h_sync_active)
+	{	
+		val |= (1 << 25);
+	}
+	if(!pdat->timing.clk_active)
+	{	
+		val |= (1 << 26);
+	}
+	if(!pdat->timing.den_active)
+	{
+		val |= (1 << 27);
+	}
 	write32((virtual_addr_t)&tcon->tcon0_io_polarity, val);
 	write32((virtual_addr_t)&tcon->tcon0_io_tristate, 0);
 }
@@ -325,6 +340,7 @@ static struct device_t * fb_f1c100s_probe(struct driver_t * drv, struct dtnode_t
 	pdat->timing.v_sync_active = dt_read_bool(n, "vsync-active", 0);
 	pdat->timing.den_active = dt_read_bool(n, "den-active", 0);
 	pdat->timing.clk_active = dt_read_bool(n, "clk-active", 0);
+	pdat->timing.BR_swap = dt_read_bool(n, "BR-swap", 0);
 	pdat->backlight = search_led(dt_read_string(n, "backlight", NULL));
 
 	fb->name = alloc_device_name(dt_read_name(n), dt_read_id(n));
