@@ -230,6 +230,63 @@ SRCDIRS		+=	external/freetype-2.4.11/src/base \
 
 INCDIRS		+=	external/chipmunk-7.0.2/include
 SRCDIRS		+=	external/chipmunk-7.0.2/src
+INCDIRS		+=	external/cjson-1.7.3
+SRCDIRS		+=	external/cjson-1.7.3
+
+INCDIRS		+=	external/lvgl-v5.1 \
+				external/lvgl-v5.1/lv_drivers/ \
+				external/lvgl-v5.1/lv_drivers/display \
+				external/lvgl-v5.1/lv_drivers/indev \
+				external/lvgl-v5.1/lv_examples \
+				external/lvgl-v5.1/lv_examples/lv_apps/benchmark \
+				external/lvgl-v5.1/lv_examples/lv_apps/demo \
+				external/lvgl-v5.1/lv_examples/lv_apps/sysmon \
+				external/lvgl-v5.1/lv_examples/lv_apps/terminal \
+				external/lvgl-v5.1/lv_examples/lv_apps/tpcal \
+				external/lvgl-v5.1/lv_examples/lv_tests/ \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_group \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_misc \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_obj \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_objx \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_stress \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_theme \
+				external/lvgl-v5.1/lv_examples/lv_tutorial \
+				external/lvgl-v5.1/lvgl \
+				external/lvgl-v5.1/lvgl/docs \
+				external/lvgl-v5.1/lvgl/lv_core \
+				external/lvgl-v5.1/lvgl/lv_draw \
+				external/lvgl-v5.1/lvgl/lv_hal \
+				external/lvgl-v5.1/lvgl/lv_misc \
+				external/lvgl-v5.1/lvgl/lv_misc/lv_fonts \
+				external/lvgl-v5.1/lvgl/lv_objx \
+				external/lvgl-v5.1/lvgl/lv_themes
+SRCDIRS		+=	external/lvgl-v5.1 \
+				external/lvgl-v5.1/lv_drivers/ \
+				external/lvgl-v5.1/lv_drivers/display \
+				external/lvgl-v5.1/lv_drivers/indev \
+				external/lvgl-v5.1/lv_examples \
+				external/lvgl-v5.1/lv_examples/lv_apps/benchmark \
+				external/lvgl-v5.1/lv_examples/lv_apps/demo \
+				external/lvgl-v5.1/lv_examples/lv_apps/sysmon \
+				external/lvgl-v5.1/lv_examples/lv_apps/terminal \
+				external/lvgl-v5.1/lv_examples/lv_apps/tpcal \
+				external/lvgl-v5.1/lv_examples/lv_tests/ \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_group \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_misc \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_obj \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_objx \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_stress \
+				external/lvgl-v5.1/lv_examples/lv_tests/lv_test_theme \
+				external/lvgl-v5.1/lv_examples/lv_tutorial \
+				external/lvgl-v5.1/lvgl \
+				external/lvgl-v5.1/lvgl/docs \
+				external/lvgl-v5.1/lvgl/lv_core \
+				external/lvgl-v5.1/lvgl/lv_draw \
+				external/lvgl-v5.1/lvgl/lv_hal \
+				external/lvgl-v5.1/lvgl/lv_misc \
+				external/lvgl-v5.1/lvgl/lv_misc/lv_fonts \
+				external/lvgl-v5.1/lvgl/lv_objx \
+				external/lvgl-v5.1/lvgl/lv_themes
 
 #
 # You shouldn't need to change anything below this point.
