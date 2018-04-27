@@ -151,7 +151,7 @@ static inline void f1c100s_tcon_set_mode(struct fb_f1c100s_pdata_t * pdat)
 	val = (pdat->timing.v_front_porch + pdat->timing.v_back_porch + pdat->timing.v_sync_len);
 	write32((virtual_addr_t)&tcon->tcon0_ctrl, (1 << 31) | ((val & 0x1f) << 4));
 	val = clk_get_rate(pdat->clktcon) / pdat->timing.pixel_clock_hz;
-	write32((virtual_addr_t)&tcon->tcon0_dclk, (0xf << 28) | (val << 0));
+	write32((virtual_addr_t)&tcon->tcon0_dclk, (0x1 << 28) | (val << 0));
 	write32((virtual_addr_t)&tcon->tcon0_timing_active, ((pdat->width - 1) << 16) | ((pdat->height - 1) << 0));
 
 	bp = pdat->timing.h_sync_len + pdat->timing.h_back_porch;
@@ -180,7 +180,7 @@ static inline void f1c100s_tcon_set_mode(struct fb_f1c100s_pdata_t * pdat)
 		write32((virtual_addr_t)&tcon->tcon0_frm_ctrl, (pdat->bits_per_pixel == 18) ? ((1 << 31) | (0 << 4)) : ((1 << 31) | (5 << 4)));
 	}
 
-	val = (1 << 28);
+	val = (0 << 28);
 	if(!pdat->timing.v_sync_active)
 		val |= (1 << 24);
 	if(!pdat->timing.h_sync_active)
