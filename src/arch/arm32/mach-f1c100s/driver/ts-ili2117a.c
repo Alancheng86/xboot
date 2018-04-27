@@ -55,6 +55,26 @@ u16_t MAX_TOUCH_NUM = 0; // If project use MSG28xx, set MUTUAL_MAX_TOUCH_NUM as 
 #define CHIP_TYPE_ILI2121   (0x2121) // EX. ILI2121
 #define CHIP_TYPE_ILI2120   (0x2120) // (0) // EX. ILI2120
 
+//I2C¶ÁÐ´ÃüÁî	
+#define FT_CMD_WR 				0X70    	//Ð´ÃüÁî
+#define FT_CMD_RD 				0X71		//¶ÁÃüÁî
+  
+//FT5206 ²¿·Ö¼Ä´æÆ÷¶¨Òå 
+#define FT_DEVIDE_MODE 			0x00   		//FT5206Ä£Ê½¿ØÖÆ¼Ä´æÆ÷
+#define FT_REG_NUM_FINGER       0x02		//´¥Ãþ×´Ì¬¼Ä´æÆ÷
+
+#define FT_TP1_REG 				0X03	  	//µÚÒ»¸ö´¥ÃþµãÊý¾ÝµØÖ·
+#define FT_TP2_REG 				0X09		//µÚ¶þ¸ö´¥ÃþµãÊý¾ÝµØÖ·
+#define FT_TP3_REG 				0X0F		//µÚÈý¸ö´¥ÃþµãÊý¾ÝµØÖ·
+#define FT_TP4_REG 				0X15		//µÚËÄ¸ö´¥ÃþµãÊý¾ÝµØÖ·
+#define FT_TP5_REG 				0X1B		//µÚÎå¸ö´¥ÃþµãÊý¾ÝµØÖ·  
+ 
+
+#define	FT_ID_G_LIB_VERSION		0xA1		//°æ±¾		
+#define FT_ID_G_MODE 			0xA4   		//FT5206ÖÐ¶ÏÄ£Ê½¿ØÖÆ¼Ä´æÆ÷
+#define FT_ID_G_THGROUP			0x80   		//´¥ÃþÓÐÐ§ÖµÉèÖÃ¼Ä´æÆ÷
+#define FT_ID_G_PERIODACTIVE	0x88   		//¼¤»î×´Ì¬ÖÜÆÚÉèÖÃ¼Ä´æÆ÷
+
 
 struct ts_ili2117a_pdata_t {
 	struct i2c_device_t * dev;
@@ -73,44 +93,40 @@ struct ili2117a_firmware_t {
 };
 
 static const struct ili2117a_firmware_t firmware[] = {
-	{0xf0,0x2},
-	{0x00,0x00000000},
-	{0x7c,0x353a3534},
+	
 
 	{0xFF, 0xFFFFFFFF},
 };
 
-static bool_t ili2117a_read(struct i2c_device_t * dev, u8_t * buf, int len)
+static bool_t ili2117a_read(struct i2c_device_t * dev, u8_t reg, u8_t * buf, int len)
 {
 	struct i2c_msg_t msgs[2];
 
     msgs[0].addr = dev->addr;
-    msgs[0].flags = I2C_M_RD;
-    msgs[0].len = len;
-    msgs[0].buf = buf;
+    msgs[0].flags = 0;
+    msgs[0].len = 1;
+    msgs[0].buf = &reg;
 
     msgs[1].addr = dev->addr;
-    msgs[1].flags = I2C_M_RD;
+    msgs[1].flags = FT_CMD_RD;
     msgs[1].len = len;
     msgs[1].buf = buf;
 
     if(i2c_transfer(dev->i2c, msgs, 2) != 2)
-	{
-		return FALSE;
-	}
+    	return FALSE;
     return TRUE;
 }
 
-static bool_t ili2117a_write(struct i2c_device_t * dev, u8_t * buf, int len)
+static bool_t ili2117a_write(struct i2c_device_t * dev, u8_t reg, u8_t * buf, int len)
 {
 	struct i2c_msg_t msg;
 	u8_t mbuf[256];
 
 	if(len > sizeof(mbuf) - 1)
 		len = sizeof(mbuf) - 1;
-/*	mbuf[0] = reg;
+	mbuf[0] = reg;
 	memcpy(&mbuf[1], buf, len);
-*/
+
     msg.addr = dev->addr;
     msg.flags = 0;
     msg.len = len + 1;
@@ -121,16 +137,54 @@ static bool_t ili2117a_write(struct i2c_device_t * dev, u8_t * buf, int len)
     return TRUE;
 }
 
+static bool_t FT5206_WR_Reg(struct i2c_device_t * dev, u8_t reg, u8_t * buf, int len)
+{
+	struct i2c_msg_t msgs[2];
+
+    msgs[0].addr = dev->addr;
+    msgs[0].flags = 0;
+    msgs[0].len = 1;
+    msgs[0].buf = &reg;
+
+    msgs[1].addr = dev->addr;
+    msgs[1].flags = FT_CMD_RD;
+    msgs[1].len = len;
+    msgs[1].buf = buf;
+
+    if(i2c_transfer(dev->i2c, msgs, 2) != 2)
+    	return FALSE;
+    return TRUE;
+}
+
+static bool_t FT5206_RD_Reg(struct i2c_device_t * dev, u8_t reg, u8_t * buf, int len)
+{
+	struct i2c_msg_t msg;
+	u8_t mbuf[256];
+
+	if(len > sizeof(mbuf) - 1)
+		len = sizeof(mbuf) - 1;
+	mbuf[0] = reg;
+	memcpy(&mbuf[1], buf, len);
+
+    msg.addr = dev->addr;
+    msg.flags = 0;
+    msg.len = len + 1;
+    msg.buf = &mbuf[0];
+
+    if(i2c_transfer(dev->i2c, &msg, 1) != 1)
+    	return FALSE;
+    return TRUE;
+}
 static void RegSetLByteValue(u16_t nAddr, u8_t nData)
 {
     u8_t szTxData[4] = {0x10, (nAddr >> 8) & 0xFF, nAddr & 0xFF, nData};
-    ili2117a_write(SLAVE_I2C_ID_DBBUS, &szTxData[0], 4);
+    //ili2117a_write(SLAVE_I2C_ID_DBBUS, &szTxData[0], 4);
 }
 
 static void RegSetHByteValue(u16_t nAddr, u8_t nData)
 {
     u8_t szTxData[4] = {0x10, (nAddr >> 8) & 0xFF, (nAddr & 0xFF) + 1, nData};
-    ili2117a_write(SLAVE_I2C_ID_DBBUS, &szTxData[0], 4);
+    //ili2117a_write(SLAVE_I2C_ID_DBBUS, &szTxData[0], 4);
 }
 
 static u16_t RegGet16BitValue(u16_t nAddr)
@@ -138,8 +192,8 @@ static u16_t RegGet16BitValue(u16_t nAddr)
     u8_t szTxData[3] = {0x10, (nAddr >> 8) & 0xFF, nAddr & 0xFF};
     u8_t szRxData[2] = {0};
 
-    ili2117a_write(SLAVE_I2C_ID_DBBUS, &szTxData[0], 3);
-    ili2117a_read(SLAVE_I2C_ID_DBBUS, &szRxData[0], 2);
+    //ili2117a_write(SLAVE_I2C_ID_DBBUS, &szTxData[0], 3);
+    //ili2117a_read(SLAVE_I2C_ID_DBBUS, &szRxData[0], 2);
 
     return (szRxData[1] << 8 | szRxData[0]);
 }
@@ -156,7 +210,7 @@ static u32_t DbBusEnterSerialDebugMode(void)
     buf[3] = 0x44;
     buf[4] = 0x42;
 
-    rc = ili2117a_write(SLAVE_I2C_ID_DBBUS, buf, 5);
+    //rc = ili2117a_write(SLAVE_I2C_ID_DBBUS, buf, 5);
     
     return rc;
 }
@@ -168,7 +222,7 @@ static void DbBusExitSerialDebugMode(void)
     // Exit the Serial Debug Mode
     data[0] = 0x45;
 
-    ili2117a_write(SLAVE_I2C_ID_DBBUS, data, 1);
+    //ili2117a_write(SLAVE_I2C_ID_DBBUS, data, 1);
 
     // Delay some interval to guard the next transaction
 //    udelay(200);        // delay about 0.2ms
@@ -181,7 +235,7 @@ static void DbBusNotStopMCU(void)
     // Not Stop the MCU
     data[0] = 0x36;
 
-    ili2117a_write(SLAVE_I2C_ID_DBBUS, data, 1);
+    //ili2117a_write(SLAVE_I2C_ID_DBBUS, data, 1);
 }
 
 static void DbBusIICNotUseBus(void)
@@ -191,61 +245,22 @@ static void DbBusIICNotUseBus(void)
     // IIC Not Use Bus
     data[0] = 0x34;
 
-    ili2117a_write(SLAVE_I2C_ID_DBBUS, data, 1);
+    //ili2117a_write(SLAVE_I2C_ID_DBBUS, data, 1);
 }
 
 static bool_t ili2117a_check(struct i2c_device_t * dev)
 {
 	u8_t buf;
-	u16_t nChipType = 0;
-	u32_t rc = 0;
 	
-	// Check chip type by using DbBus for MSG22XX/MSG28XX/MSG58XX/MSG58XXA/ILI2117A/ILI2118A.
-    // Erase TP Flash first
-    rc = DbBusEnterSerialDebugMode();
-	if(rc<0)
+	/////读取版本号，参考值：0x3003
+	FT5206_RD_Reg(dev, FT_ID_G_LIB_VERSION, &buf, 2);
+	//if(((buf[0]==0X30)&&(buf[1]==0X03))||(buf[1]==0X01)||(buf[1]==0X02))//°æ±¾:0X3003/0X0001/0X0002
 	{
-		return TRUE; 
-	}
-	// Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01);
-	
-	// Set Password
-    RegSetLByteValue(0x1616,0xAA);
-    RegSetLByteValue(0x1617,0x55);
-    RegSetLByteValue(0x1618,0xA5);
-    RegSetLByteValue(0x1619,0x5A);
-
-    // disable cpu read, in,tial); read
-    RegSetLByteValue(0x1608,0x20);
-    RegSetLByteValue(0x1606,0x20);
-    RegSetLByteValue(0x1607,0x00);
-
-    // set info block
-    RegSetLByteValue(0x1607,0x08);
-    // set info double buffer
-    RegSetLByteValue(0x1604,0x01);
-
-    // set eflash mode to read mode
-    RegSetLByteValue(0x1606,0x01);
-    RegSetLByteValue(0x1610,0x01);
-    RegSetLByteValue(0x1611,0x00);
-
-    // set read address
-    RegSetLByteValue(0x1600,0x05);
-    RegSetLByteValue(0x1601,0x00);
-
-    nChipType = RegGet16BitValue(0x160A) & 0xFFFF;
-	if (nChipType == CHIP_TYPE_ILI2117A)
-	{
+		//printf("CTP ID:%x\r\n",((u16)buf[0]<<8)+buf[1]);
 		return TRUE;
-	}
-	
-	DbBusIICNotUseBus();
-    DbBusNotStopMCU();
-    DbBusExitSerialDebugMode();
-	
-	return FALSE;
+	} 
+	//	return FALSE;
+
 }
 
 static void ili2117a_clear(struct i2c_device_t * dev)
@@ -303,6 +318,25 @@ static bool_t ili2117a_reset(struct i2c_device_t * dev)
 static bool_t ili2117a_startup(struct i2c_device_t * dev)
 {
 	u8_t buf;
+	
+	///////进入正常操作模式
+	buf = 0x0;
+	if(!FT5206_WR_Reg(dev, FT_DEVIDE_MODE, &buf, 1))
+		return FALSE;
+	
+	////进入查询模式
+	buf = 0x0;////设置为0x1，进入中断模式，设置为0x0，则为主机查询模式。
+	if(!FT5206_WR_Reg(dev, FT_ID_G_MODE, &buf, 1))
+		return FALSE;
+	////触摸有效值，22，越小越灵敏------>设置触摸有效值
+	buf = 0x22;
+	if(!FT5206_WR_Reg(dev, FT_ID_G_THGROUP, &buf, 1))
+		return FALSE;
+	/////设置激活周期，不能小于12，最大14
+	buf = 0x12;
+	if(!FT5206_WR_Reg(dev, FT_ID_G_PERIODACTIVE, &buf, 1))
+		return FALSE;
+	
 /*
 	buf = 0x00;
 	ili2117a_write(dev, 0xe0, &buf, 1);
@@ -344,7 +378,7 @@ static void ili2117a_interrupt(void * data)
 
 	disable_irq(pdat->irq);
 
-	if(ili2117a_read(pdat->dev, &buf[0], 4 + fingers * 4))
+	if(FT5206_RD_Reg(pdat->dev,FT_TP1_REG, &buf[0], 4 + fingers * 4))
 	{
 		for(i = 0; i < fingers; i++)
 		{
@@ -405,7 +439,7 @@ static struct device_t * ts_ili2117a_probe(struct driver_t * drv, struct dtnode_
 	if(!gpio_is_valid(gpio) || !irq_is_valid(irq))
 		return NULL;
 
-	i2cdev = i2c_device_alloc(dt_read_string(n, "i2c-bus", NULL), 0x40, 0);
+	i2cdev = i2c_device_alloc(dt_read_string(n, "i2c-bus", NULL), 0x70, 0);
 	if(!i2cdev)
 		return NULL;
 
@@ -421,6 +455,7 @@ static struct device_t * ts_ili2117a_probe(struct driver_t * drv, struct dtnode_
 	ili2117a_reset(i2cdev);
 	ili2117a_startup(i2cdev);
 */
+	ili2117a_startup(i2cdev);
 	pdat = malloc(sizeof(struct ts_ili2117a_pdata_t));
 	if(!pdat)
 	{
@@ -448,7 +483,7 @@ static struct device_t * ts_ili2117a_probe(struct driver_t * drv, struct dtnode_
 
 	gpio_set_pull(gpio, GPIO_PULL_UP);
 	gpio_direction_input(gpio);
-	request_irq(pdat->irq, ili2117a_interrupt, IRQ_TYPE_EDGE_RISING, input);
+	request_irq(pdat->irq, ili2117a_interrupt, IRQ_TYPE_EDGE_FALLING, input);
 
 	if(!register_input(&dev, input))
 	{

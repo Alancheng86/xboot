@@ -386,6 +386,6 @@
 	"ts-ili2117a@0": {
 		"i2c-bus": "i2c-f1c100s.0",
 		"interrupt-gpio": 131,
-		"maximum-fingers": 10
+		"maximum-fingers": 5
 	}
 }
