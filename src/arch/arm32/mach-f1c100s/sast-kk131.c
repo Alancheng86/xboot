@@ -60,7 +60,7 @@ static void mach_cleanup(struct machine_t * mach)
 
 static void mach_logger(struct machine_t * mach, const char * buf, int count)
 {
-	virtual_addr_t virt = phys_to_virt(0x01c25000);
+	virtual_addr_t virt = phys_to_virt(0x01c25800);   //0x01c25000：uart0；0x01c25800：uart2
 	int i;
 
 	for(i = 0; i < count; i++)
